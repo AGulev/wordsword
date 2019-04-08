@@ -1,0 +1,36 @@
+local wordsword = require "wordsword.wordsword"
+local wordsword_loader = require "wordsword.loader"
+
+local function on_load_done()
+	wordsword.print()
+	print("is_word ", wordsword.is_word("hammer"))
+	print("is_word ", wordsword.is_word("fsdg"))
+end
+
+function init(self)
+	local dict = sys.load_resource("/included_res/dictionary_en.txt")
+	wordsword_loader.load_dictionary_async(dict, "\n", on_load_done)
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	-- Add update code here
+	-- Remove this function if not needed
+end
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	-- Remove this function if not needed
+end
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end
+
+function on_reload(self)
+end
