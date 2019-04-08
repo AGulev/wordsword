@@ -1,15 +1,15 @@
 local wordsword = require "wordsword.wordsword"
-local wordsword_loader = require "wordsword.loader"
 
-local function on_load_done()
-	wordsword.print()
+local function on_load_done(tree)
+	tree:print()
 	print("is_word ", wordsword.is_word("hammer"))
 	print("is_word ", wordsword.is_word("fsdg"))
 end
 
 function init(self)
 	local dict = sys.load_resource("/included_res/dictionary_en.txt")
-	wordsword_loader.load_dictionary_async(dict, "\n", on_load_done)
+	self.tree = wordsword.new()
+	self.tree:load_dictionary_async(dict, "\n", on_load_done)
 end
 
 function final(self)
