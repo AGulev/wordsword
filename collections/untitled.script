@@ -2,8 +2,8 @@ local wordsword = require "wordsword.wordsword"
 
 local function on_load_done(tree)
 	tree:print()
-	print("is_word ", wordsword.is_word("hammer"))
-	print("is_word ", wordsword.is_word("fsdg"))
+	print("is_word ", tree:is_word("hammer"))
+	print("is_word ", tree:is_word("fsdg"))
 end
 
 function init(self)

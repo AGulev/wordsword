@@ -82,7 +82,9 @@ function M.tree.load_dictionary_async(self, dict, separator, callback)
 		timer.delay(0, false, function() coroutine.resume(co) end)
 		coroutine.yield()
 		if callback then
-			callback(self)
+			timer.delay(0, false, function() 
+				callback(self) 
+			end)
 		end
 	end)
 	coroutine.resume(co)
