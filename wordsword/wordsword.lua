@@ -38,6 +38,7 @@ end
 
 function M.tree.add_word(self, word)
 	local h_letter
+	self.words_count = self.words_count + 1
 	local prev_node = self.tree
 	for letter in utf8.gmatch(word, ".") do
 		h_letter = hash(letter)
@@ -61,9 +62,10 @@ function M.tree.reset(self)
 	self.abc = {}
 	self.abc_stat = {}
 	self.adc_size = 0
+	self.words_count = 0
 end
 
-function M.tree.load_dictionary_async(self, dict, separator, callback)
+function M.tree.load_dictionary_non_blocking(self, dict, separator, callback)
 	local co
 	co = coroutine.create(function()
 		local frame_time = socket.gettime()
@@ -98,12 +100,13 @@ function M.tree.load_dictionary(self, dict, separator)
 	end
 end
 
-function M.tree.print(self)
-	print("abc")
+function M.tree.print_info(self)
+	print("abc:")
 	pprint(self.abc)
-	print("abc_stat")
+	print("abc_stat:")
 	pprint(self.abc_stat)
 	print("adc_size", self.adc_size)
+	print("words_count", self.words_count)
 end
 
 return M
