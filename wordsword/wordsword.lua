@@ -4,6 +4,18 @@ local M = {
 
 local utf8 = require "wordsword.utf8"
 
+local function recalculate_freq_table(self)
+	self.freq_table = {}
+	local sum = 0
+	local el
+	for k, v in pairs(self.abc_stat) do
+		sum = sum + v
+		el = {l = k, sum = sum}
+		self.freq_table[#self.freq_table + 1] = el
+	end
+	self.freq_sum = sum
+end
+
 function M.split_word_hash(word)
 	local letters = {}
 	for letter in utf8.gmatch(word, ".") do
@@ -55,6 +67,7 @@ function M.tree.add_word(self, word)
 		prev_node = prev_node[h_letter]
 	end
 	prev_node.end_word = true
+	self.freq_table = nil
 end
 
 function M.tree.reset(self)
@@ -63,6 +76,22 @@ function M.tree.reset(self)
 	self.abc_stat = {}
 	self.adc_size = 0
 	self.words_count = 0
+	self.freq_table = nil
+	self.freq_sum = 0
+end
+
+function M.tree.get_letter(self)
+	if not self.freq_table then
+		recalculate_freq_table(self)
+	end
+	local num = math.random(1, self.freq_sum)
+	local el
+	for i = 1, self.adc_size do
+		el = self.freq_table[i]
+		if num <= el.sum then
+			return self.abc[el.l], el.l
+		end
+	end
 end
 
 function M.tree.load_dictionary_non_blocking(self, dict, separator, callback)

@@ -4,10 +4,13 @@ local function on_load_done(tree)
 	tree:print_info()
 	print("is_word ", tree:is_word("hammer"))
 	print("is_word ", tree:is_word("fsdg"))
+	for i = 1, 20 do
+		print(tree:get_letter())
+	end
 end
 
 function init(self)
-	local dict = sys.load_resource("/included_res/dictionary_en.txt")
+	local dict = sys.load_resource("/included_res/dictionary_ru.txt")
 	self.tree = wordsword.new()
 	self.tree:load_dictionary_non_blocking(dict, "\n", on_load_done)
 end
