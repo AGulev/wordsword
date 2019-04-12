@@ -1,0 +1,7 @@
+profiles {
+  name: "Default"
+  qualifiers {
+    width: 1080
+    height: 1440
+  }
+}

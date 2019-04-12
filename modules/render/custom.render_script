@@ -1,0 +1,105 @@
+local camera = require "modules.render.camera"
+local msgs = require "modules.msgs"
+
+local function update_window(self)
+  camera.win_x = render.get_window_width()
+  camera.win_y = render.get_window_height()
+  camera.config_x = camera.settings_x
+  camera.config_y = camera.settings_y
+  local sx, sy = camera.win_x / camera.config_x, camera.win_y / camera.config_y
+  local scale = math.min(sx, sy) -- scale for FIT mode is the -smaller- of sx and sy
+  camera.fit.sx = scale
+  camera.fit.sy = scale
+  camera.fit.ox = (camera.win_x - camera.config_x * scale) * 0.5 / scale
+  camera.fit.oy = (camera.win_y - camera.config_y * scale) * 0.5 / scale
+
+  scale = math.max(sx, sy) -- scale for ZOOM mode is the -larger- of sx and sy
+  camera.zoom.sx = scale
+  camera.zoom.sy = scale
+  camera.zoom.ox = (camera.win_x - camera.config_x * scale) * 0.5 / scale
+  camera.zoom.oy = (camera.win_y - camera.config_y * scale) * 0.5 / scale
+
+  camera.stretch.sx = sx -- scale for STRETCH mode is...stretched - the scale is non-uniform
+  camera.stretch.sy = sy
+  -- distorts to fit window, offsets always zero
+
+  self.projected_width = camera.win_x / camera.fit.sx
+  self.projected_height = camera.win_y / camera.fit.sy
+
+  self.full_proj = vmath.matrix4_orthographic(-camera.fit.ox, self.projected_width - camera.fit.ox,
+  -camera.fit.oy, self.projected_height - camera.fit.oy, - 1, 1)
+
+  self.view = vmath.matrix4()
+  self.gui_projection = vmath.matrix4_orthographic(0, camera.win_x, 0, camera.win_y, - 1, 1)
+end
+
+function init(self)
+  self.bkg_pred = render.predicate({"bkg"})
+  self.particle_pred = render.predicate({"particle"})
+  self.tile_pred = render.predicate({"tile"})
+  self.gui_pred = render.predicate({"gui"})
+  self.text_pred = render.predicate({"text"})
+  self.render_target_pred = render.predicate({"render_target"})
+
+  camera.settings_x = render.get_width()
+  camera.settings_y = render.get_height()
+  camera.curr_x = camera.settings_x
+  camera.curr_y = camera.settings_y
+
+  self.clear_color = vmath.vector4(0, 0, 0, 0)
+  self.clear_color.x = sys.get_config("render.clear_color_red", 0)
+  self.clear_color.y = sys.get_config("render.clear_color_green", 0)
+  self.clear_color.z = sys.get_config("render.clear_color_blue", 0)
+  self.clear_color.w = sys.get_config("render.clear_color_alpha", 0)
+
+  self.view = vmath.matrix4()
+  self.clear_param = {
+    [render.BUFFER_COLOR_BIT] = self.clear_color,
+    [render.BUFFER_DEPTH_BIT] = 1,
+    [render.BUFFER_STENCIL_BIT] = 0
+  }
+  update_window(self)
+end
+
+function update(self)
+  render.set_depth_mask(true)
+  render.clear(self.clear_param)
+
+  render.set_viewport(0, 0, camera.win_x, camera.win_y)
+  render.set_view(self.view)
+  render.set_depth_mask(false)
+  render.disable_state(render.STATE_DEPTH_TEST)
+  render.disable_state(render.STATE_STENCIL_TEST)
+  render.enable_state(render.STATE_BLEND)
+  render.set_blend_func(render.BLEND_SRC_ALPHA, render.BLEND_ONE_MINUS_SRC_ALPHA)
+  render.disable_state(render.STATE_CULL_FACE)
+
+  render.set_projection(self.gui_projection)
+  render.draw(self.bkg_pred)
+
+  render.set_projection(self.full_proj)
+  render.draw(self.tile_pred)
+  render.draw(self.particle_pred)
+  render.draw_debug3d()
+
+  render.set_view(self.view)
+  render.set_projection(self.gui_projection)
+
+  render.enable_state(render.STATE_STENCIL_TEST)
+  render.draw(self.gui_pred)
+  render.draw(self.text_pred)
+  render.disable_state(render.STATE_STENCIL_TEST)
+
+  render.set_depth_mask(false)
+end
+
+function on_message(self, message_id, message, sender)
+  if message_id == msgs.RENDER_CLEAR_COLOR then
+    self.clear_color = message.color
+    self.clear_param[render.BUFFER_COLOR_BIT] = self.clear_color
+  elseif message_id == msgs.RENDER_WINDOW_RESIZED then
+    update_window(self)
+  elseif message_id == msgs.RENDER_SET_VIEW_PROJECTION then
+    self.view = message.view
+  end
+end

@@ -1,4 +1,7 @@
 local wordsword = require "wordsword.wordsword"
+local msgs = require "modules.msgs"
+local view = require "modules.game.view.view"
+local logic = require "modules.game.logic.logic"
 
 local function on_load_done(tree)
 	tree:print_info()
@@ -9,20 +12,27 @@ local function on_load_done(tree)
 	end
 end
 
+local function move_handler(view_data, game_msg_id, game_msg)
+	local result = logic.move_handler(self.logic_data, game_msg_id, game_msg)
+	return result
+end
+
 function init(self)
+	msgs.focus(self)
+	self.view_data = {}
+	self.logic_data = {}
+
+	local level_data = {
+		width = 10,
+		height = 10
+	}
+	
+	view.init(self, move_handler)
+	view.create_level(self.view_data, level_data)
+	
 	local dict = sys.load_resource("/included_res/dictionary_ru.txt")
 	self.tree = wordsword.new()
 	self.tree:load_dictionary_non_blocking(dict, "\n", on_load_done)
-end
-
-function final(self)
-	-- Add finalization code here
-	-- Remove this function if not needed
-end
-
-function update(self, dt)
-	-- Add update code here
-	-- Remove this function if not needed
 end
 
 function on_message(self, message_id, message, sender)
@@ -31,9 +41,7 @@ function on_message(self, message_id, message, sender)
 end
 
 function on_input(self, action_id, action)
-	-- Add input-handling code here
-	-- Remove this function if not needed
-end
-
-function on_reload(self)
+	if action_id == msgs.I_CLICK then
+		view.on_input(self.view_data, action_id, action)
+	end
 end

@@ -1,17 +1,24 @@
 [bootstrap]
-main_collection = /collections/main.collectionc
+main_collection = /collections/_loader/_loader.collectionc
+render = /modules/render/custom.renderc
 
 [script]
 shared_state = 1
 
 [display]
-width = 960
-height = 640
+width = 1080
+height = 1440
+high_dpi = 1
+display_profiles = /modules/render/custom.display_profilesc
 
 [project]
 title = wordsword
 custom_resources = included_res
+dependencies = https://github.com/britzl/monarch/archive/2.17.1.zip
 
 [library]
 include_dirs = wordsword
+
+[label]
+max_count = 120
 

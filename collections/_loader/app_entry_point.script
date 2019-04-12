@@ -1,0 +1,6 @@
+local monarch = require "monarch.monarch"
+local msgs = require "modules.msgs"
+
+function init(self)
+	monarch.show(msgs.SRC_GAME)
+end
