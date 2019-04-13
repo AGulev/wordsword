@@ -10,7 +10,7 @@ M.Z_LAYERS = {
 }
 
 local TOP_LEFT_CORNER = {
-	[msgs.SRC_PORTRAIT] = vmath.vector3(210, 908, 0)
+	[msgs.SRC_PORTRAIT] = vmath.vector3(150, 908, 0)
 }
 
 local ROTATIONS = {
@@ -23,9 +23,9 @@ local ROTATIONS = {
 }
 
 --game
-M.CELL_SIZE = vmath.vector3(105, 112, 0)
+M.CELL_SIZE = vmath.vector3(90, 90, 0)
 local LINE_SIZE = 4 --px
-local CLICK_ZONE = vmath.vector3(160, 160, 0) * 0.5
+local CLICK_ZONE = vmath.vector3(120, 120, 0) * 0.5
 
 local orientation = msgs.SRC_PORTRAIT
 

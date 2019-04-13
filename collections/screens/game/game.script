@@ -1,20 +1,29 @@
-local wordsword = require "wordsword.wordsword"
 local msgs = require "modules.msgs"
 local view = require "modules.game.view.view"
 local logic = require "modules.game.logic.logic"
+local wordsword = require "wordsword.wordsword"
+local events = require "modules.game.events"
 
-local function on_load_done(tree)
+local function on_load_done(self, tree)
 	tree:print_info()
-	print("is_word ", tree:is_word("hammer"))
-	print("is_word ", tree:is_word("fsdg"))
-	for i = 1, 20 do
-		print(tree:get_letter())
+	local result, data = logic.move_handler(self.logic_data, events.INIT, self.level_options)
+	if result then
+		result, data = logic.move_handler(self.logic_data, events.FILL, tree)
+		if result then
+			view.create_level(self.view_data, data)
+		end
 	end
 end
 
-local function move_handler(view_data, game_msg_id, game_msg)
-	local result = logic.move_handler(self.logic_data, game_msg_id, game_msg)
-	return result
+local function move_handler(logic_data, game_event, event_data)
+	local result, data = logic.move_handler(logic_data, game_event, event_data)
+	return result, data
+end
+
+local function load_dict(self)
+	local dict = sys.load_resource("/included_res/dictionary_en.txt")
+	self.tree = wordsword.new()
+	self.tree:load_dictionary_non_blocking(dict, "\n", function(tree) on_load_done(self, tree) end)
 end
 
 function init(self)
@@ -22,17 +31,16 @@ function init(self)
 	self.view_data = {}
 	self.logic_data = {}
 
-	local level_data = {
+	self.level_options = {
 		width = 10,
 		height = 10
 	}
 	
-	view.init(self, move_handler)
-	view.create_level(self.view_data, level_data)
+	view.init(self.view_data, function(game_event, event_data) 
+		return move_handler(self.logic_data, game_event, event_data) 
+	end)
 	
-	local dict = sys.load_resource("/included_res/dictionary_ru.txt")
-	self.tree = wordsword.new()
-	self.tree:load_dictionary_non_blocking(dict, "\n", on_load_done)
+	load_dict(self)
 end
 
 function on_message(self, message_id, message, sender)

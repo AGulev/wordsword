@@ -22,3 +22,6 @@ include_dirs = wordsword
 [label]
 max_count = 120
 
+[input]
+game_binding = /modules/input/game.input_bindingc
+

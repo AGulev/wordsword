@@ -2,6 +2,7 @@ local M = {}
 
 local sizes = require "modules.game.view.sizes"
 local tiles = require "modules.game.view.tiles"
+local events = require "modules.game.events"
 
 local move_handler
 
